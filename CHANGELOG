@@ -1,0 +1,11 @@
+## [0.9.0] - 2025-05-06
+
+Initial public release.
+
+### Features
+- Prompts user to scaffold a clean `deno.json` or `deno.jsonc` for new Deno modules
+- Supports `--dry-run`, `--force`, and `--help` CLI flags
+- Fully testable core with injectable I/O and validation logic
+- Guard to prevent overwriting existing config without `--force`
+- Smart defaults: includes test, lint, and format scripts
+- 100% test coverage with modular design and zero runtime globals

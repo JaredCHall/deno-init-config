@@ -1,6 +1,6 @@
 {
   "name": "@jaredhall/init-config",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "exports": "./mod.ts",
   "description": "Scaffolds deno.jsonc files for new Deno modules using prompts or config",
   "githubPath": "JaredCHall/deno-init-config",
