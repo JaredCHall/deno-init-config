@@ -1,11 +1,3 @@
-export async function fileExists(path: string): Promise<boolean> {
-  try {
-    await Deno.stat(path)
-    return true
-  } catch {
-    return false
-  }
-}
 /** Throw an error if the jsr path is invalid */
 export function validateJsrPath(jsrPath: string): void {
   if (!jsrPath.startsWith('@') || !jsrPath.includes('/')) {
@@ -19,11 +11,18 @@ export function validateGitHubPath(githubPath: string): void {
   }
 }
 
-/** Prompt the user for input */
-export function promptUser(message: string): string
-{
-  const input = prompt(message)
-  if(input === null) throw new Error('User cancelled')
-
-  return input.trim()
+/** Prompt the user for input until it passes validation */
+export function promptUser(
+    message: string,
+    validate?: (input: string) => void
+): string {
+  while(true){
+    const input = (prompt(message) ?? '').trim()
+    try {
+      if (validate) validate(input)
+      return input
+    } catch (err) {
+      console.error(`%c❌ ${err instanceof Error ? err.message : String(err)}`, 'color:indianred')
+    }
+  }
 }

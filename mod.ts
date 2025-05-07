@@ -8,14 +8,13 @@ import { parse } from "@std/flags";
 if (import.meta.main) {
   const args = parse(Deno.args, {
     string: ["format"],
-    boolean: ["force","dry-run"],
-    default: { format: "jsonc" , force: true, "dry-run": false},
+    boolean: ["dry-run"],
+    default: { format: "jsonc", "dry-run": false},
   });
 
   try{
     const output = await generateDenoConfig({
       format: args.format,
-      force: args.force,
       dryRun: args["dry-run"],
     })
 

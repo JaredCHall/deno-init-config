@@ -1,5 +1,5 @@
-import {fileExists, promptUser, validateGitHubPath, validateJsrPath} from "./helpers.ts";
-import {DenoConfig} from "./types.ts";
+import {promptUser, validateGitHubPath, validateJsrPath} from "./helpers.ts";
+import type {DenoConfig} from "./types.ts";
 
 export type PromptFn = typeof promptUser
 export type WriteFn = typeof Deno.writeTextFile
@@ -8,8 +8,6 @@ export type WriteFn = typeof Deno.writeTextFile
 export interface GenerateDenoConfigOptions {
   /** The format of the output file: json or jsonc */
   format: string
-  /** Overwrite existing files */
-  force?: boolean
   /** return the output instead of writing to file */
   dryRun?: boolean
 }
@@ -26,7 +24,7 @@ export interface GenerateDenoConfigInjections {
  * @returns the path to the generated file or the output if dryRun is true
  */
 export async function generateDenoConfig(
-    options: GenerateDenoConfigOptions = {format: 'jsonc', force: false},
+    options: GenerateDenoConfigOptions = {format: 'jsonc'},
     injects: GenerateDenoConfigInjections = {
       promptFn: promptUser,
       writeFn: Deno.writeTextFile
@@ -39,24 +37,17 @@ export async function generateDenoConfig(
   if(!injects.promptFn) throw new Error('promptFn is required')
   if(!injects.writeFn) throw new Error('writeFn is required')
 
-  const jsrPath = injects.promptFn('Enter the future JSR path of the project: ')
-  validateJsrPath(jsrPath)
-  const githubPath = injects.promptFn('Enter the GitHub path of the project: ')
-  validateGitHubPath(githubPath)
+  const jsrPath = injects.promptFn('Enter the future JSR path of the project: ', validateJsrPath)
+  const githubPath = injects.promptFn('Enter the GitHub path of the project: ', validateGitHubPath)
   const description = injects.promptFn('Enter a short description of the project: ')
   const config = generateDenoConfigObject(jsrPath, githubPath, description)
   const configText = JSON.stringify(config, null, 2)
-
-  const fileName = `./deno.${options.format}`
-
-  if (await fileExists(fileName) && !options.force) {
-    throw new Error('{fileName} already exists. Use --force to overwrite.')
-  }
 
   if(options.dryRun){
     return configText
   }
 
+  const fileName = `./deno.${options.format}`
   await injects.writeFn(fileName, JSON.stringify(config, null, 2))
 
   return fileName
