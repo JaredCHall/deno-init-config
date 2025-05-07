@@ -1,6 +1,7 @@
 // deno-lint-ignore-file require-await
-import { makeDenoConfigCommand } from '../src/core.ts'
+import { makeConfigCommand } from '../src/make-config-command.ts'
 import { assertEquals, assertRejects } from '@std/assert'
+import {CommandError} from "../src/types.ts";
 
 Deno.test('makeDenoConfigCommand - writes file when not dryRun', async () => {
   let writtenPath = ''
@@ -24,7 +25,7 @@ Deno.test('makeDenoConfigCommand - writes file when not dryRun', async () => {
   }
   const mockLog = () => {}
 
-  const result = await makeDenoConfigCommand(
+  const result = await makeConfigCommand(
       { format: 'json' },
       { promptFn: mockPrompt, writeFn: mockWrite, logFn: mockLog }
   )
@@ -50,7 +51,7 @@ Deno.test('makeDenoConfigCommand - logs config when dryRun is true', async () =>
   }
   const mockLog = (msg: string) => output = msg
 
-  const result = await makeDenoConfigCommand(
+  const result = await makeConfigCommand(
       { format: 'jsonc', dryRun: true },
       { promptFn: mockPrompt, writeFn: mockWrite, logFn: mockLog }
   )
@@ -63,8 +64,8 @@ Deno.test('makeDenoConfigCommand - logs config when dryRun is true', async () =>
 
 Deno.test('makeDenoConfigCommand - throws on invalid format', async () => {
   await assertRejects(
-      () => makeDenoConfigCommand({ format: 'bogus' }),
-      Error,
+      () => makeConfigCommand({ format: 'bogus' }),
+      CommandError,
       'Invalid format: "bogus"'
   )
 })

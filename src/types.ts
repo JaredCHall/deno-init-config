@@ -1,3 +1,5 @@
+export class CommandError extends Error {}
+
 export interface DenoConfig {
   name?: string
   version?: string
