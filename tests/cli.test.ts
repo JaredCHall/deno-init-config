@@ -1,80 +1,85 @@
 // deno-lint-ignore-file require-await
 import { makeDenoConfigCli } from '../src/cli.ts'
 import { assertEquals } from '@std/assert'
-import {CommandError} from "../src/types.ts";
+import { CommandError } from '../src/types.ts'
 
 Deno.test('makeDenoConfigCli - shows help and exits 0', async () => {
-  let exitCode = -1
-  let output = ''
-  const mockLog = (msg: string) => output = msg
-  const mockErr = () => {}
-  const mockExit = (code?: number) => {
-    exitCode = code ?? -1
-    throw new Error('exit') // prevent further execution
-  }
+	let exitCode = -1
+	let output = ''
+	const mockLog = (msg: string) => output = msg
+	const mockErr = () => {}
+	const mockExit = (code?: number) => {
+		exitCode = code ?? -1
+		throw new Error('exit') // prevent further execution
+	}
 
-  try {
-    await makeDenoConfigCli({
-      logFn: mockLog,
-      errFn: mockErr,
-      exitFn: mockExit,
-      makeFn: async () => 'deno.jsonc',
-      args: ['--help']
-    })
-  } catch (_e) {}
+	try {
+		await makeDenoConfigCli({
+			logFn: mockLog,
+			errFn: mockErr,
+			exitFn: mockExit,
+			makeFn: async () => 'deno.jsonc',
+			args: ['--help'],
+		})
+	} catch (_e) {
+		//.test(captured)
+	}
 
-
-  assertEquals(output.includes('Usage:'), true)
-  assertEquals(exitCode, 0)
+	assertEquals(output.includes('Usage:'), true)
+	assertEquals(exitCode, 0)
 })
 
 Deno.test('makeDenoConfigCli - dry run logs output and exits 0', async () => {
-  let logged = ''
-  let exitCode = -1
+	let logged = ''
+	let exitCode = -1
 
-  const mockLog = (msg: string) => logged = msg
-  const mockExit = (code?: number) => {
-    exitCode = code ?? -1
-    throw new Error('exit')
-  }
+	const mockLog = (msg: string) => logged = msg
+	const mockExit = (code?: number) => {
+		exitCode = code ?? -1
+		throw new Error('exit')
+	}
 
-  try {
-    await makeDenoConfigCli({
-      logFn: mockLog,
-      errFn: () => {},
-      exitFn: mockExit,
-      makeFn: async () => 'deno.jsonc',
-      args: ['--dry-run']
-    })
-  } catch (_e) {}
+	try {
+		await makeDenoConfigCli({
+			logFn: mockLog,
+			errFn: () => {},
+			exitFn: mockExit,
+			makeFn: async () => 'deno.jsonc',
+			args: ['--dry-run'],
+		})
+	} catch (_e) {
+		//.test(captured)
+	}
 
-  assertEquals(logged.includes('✅ deno.jsonc generated'), true)
-  assertEquals(exitCode, 0)
+	assertEquals(logged.includes('✅ deno.jsonc generated'), true)
+	assertEquals(exitCode, 0)
 })
 
 Deno.test('makeDenoConfigCli - handles CommandError and exits 1', async () => {
-  let captured = ''
-  let exitCode = -1
+	let _captured = ''
+	let exitCode = -1
 
-  const mockLog = () => {}
-  const mockErr = (msg: string) => captured = String(msg)
-  const mockExit = (code?: number) => {
-    exitCode = code ?? -1
-    throw new Error('exit') // short-circuit
-  }
+	const mockLog = () => {}
+	const mockErr = (msg: string) => _captured = String(msg)
+	const mockExit = (code?: number) => {
+		exitCode = code ?? -1
+		throw new Error('exit') // short-circuit
+	}
 
-  const fakeMake = async () => {
-    throw new CommandError('intentional failure')
-  }
-  try {
-    await makeDenoConfigCli({
-      logFn: mockLog,
-      errFn: mockErr,
-      exitFn: mockExit,
-      makeFn: fakeMake,
-      args: []
-    })
-  } catch (_e) {}
+	const fakeMake = async () => {
+		throw new CommandError('intentional failure')
+	}
+	try {
+		await makeDenoConfigCli({
+			logFn: mockLog,
+			errFn: mockErr,
+			exitFn: mockExit,
+			makeFn: fakeMake,
+			args: [],
+		})
+	} catch (_e) {
+		//.test(captured)
+	}
 
-  assertEquals(exitCode, 1)
+	assertEquals(exitCode, 1)
 })
