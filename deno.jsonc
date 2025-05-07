@@ -1,0 +1,19 @@
+{
+  "name": "@jaredhall/deno-init-config",
+  "description": "Scaffolds deno.jsonc files for new Deno modules using prompts or config",
+  "version": "0.1.0",
+
+  // Common dev scripts
+  "tasks": {
+    "make:config": "deno run ./mod.ts",
+    "test": "deno test",
+    "lint": "deno lint",
+    "fmt": "deno fmt"
+  },
+  "import" : {
+    "@std/flags" : "jsr:@std/flags@1"
+  },
+  "imports": {
+    "@std/flags": "jsr:@std/flags@^0.224.0"
+  }
+}
