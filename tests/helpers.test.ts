@@ -1,6 +1,7 @@
 // helpers.test.ts
+import {validateJsrPath, validateGitHubPath, promptUser, fileExists} from "../src/helpers.ts"
 import { assertThrows, assertEquals } from "@std/assert"
-import { validateJsrPath, validateGitHubPath, promptUser } from "../src/helpers.ts"
+import { stub } from '@testing/mock'
 
 Deno.test("validateJsrPath - accepts valid scoped path", () => {
   validateJsrPath("@my_scope/my_module") // should not throw
@@ -110,4 +111,26 @@ Deno.test('promptUser - handles thrown value that is not an Error', () => {
   assertEquals(result, 'ok')
   assertEquals(logs.length, 1)
   assertEquals(logs[0].includes('❌ oops!'), true)
+})
+
+Deno.test('fileExists returns true if file exists', async () => {
+  const statStub = stub(Deno, 'stat', async () => ({ isFile: true } as Deno.FileInfo))
+  try {
+    const result = await fileExists('README.md')
+    assertEquals(result, true)
+  } finally {
+    statStub.restore()
+  }
+})
+
+Deno.test('fileExists returns false if file does not exist', async () => {
+  const statStub = stub(Deno, 'stat', async () => {
+    throw new Error('Not found')
+  })
+  try {
+    const result = await fileExists('README.md')
+    assertEquals(result, false)
+  } finally {
+    statStub.restore()
+  }
 })

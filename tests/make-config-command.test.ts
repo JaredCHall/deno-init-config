@@ -27,7 +27,7 @@ Deno.test('makeDenoConfigCommand - writes file when not dryRun', async () => {
 
   const result = await makeConfigCommand(
       { format: 'json' },
-      { promptFn: mockPrompt, writeFn: mockWrite, logFn: mockLog }
+      { promptFn: mockPrompt, writeFn: mockWrite, logFn: mockLog, fileExistsFn: async () => false }
   )
 
   assertEquals(result, './deno.json')
@@ -53,7 +53,7 @@ Deno.test('makeDenoConfigCommand - logs config when dryRun is true', async () =>
 
   const result = await makeConfigCommand(
       { format: 'jsonc', dryRun: true },
-      { promptFn: mockPrompt, writeFn: mockWrite, logFn: mockLog }
+      { promptFn: mockPrompt, writeFn: mockWrite, logFn: mockLog, fileExistsFn: async () => false }
   )
 
   assertEquals(result, './deno.jsonc')
@@ -67,5 +67,21 @@ Deno.test('makeDenoConfigCommand - throws on invalid format', async () => {
       () => makeConfigCommand({ format: 'bogus' }),
       CommandError,
       'Invalid format: "bogus"'
+  )
+})
+
+Deno.test("throws if file exists and no force/dryRun", async () => {
+  await assertRejects(
+      () => makeConfigCommand(
+          { format: "jsonc", dryRun: false, force: false },
+          {
+            promptFn: () => "ignored",
+            writeFn: () => Promise.resolve(),
+            logFn: () => {},
+            fileExistsFn: async () => true, // simulate file exists
+          }
+      ),
+      CommandError,
+      "deno.jsonc already exists"
   )
 })

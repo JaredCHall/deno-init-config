@@ -1,6 +1,6 @@
 import { makeConfigCommand } from "./make-config-command.ts";
 import { parse } from "@std/flags"
-import {promptUser} from "./helpers.ts";
+import {fileExists, promptUser} from "./helpers.ts";
 import {CommandError} from "./types.ts";
 
 const USAGE = `Usage:
@@ -34,8 +34,8 @@ export async function makeDenoConfigCli(injects: MakeDenoConfigCliInjections = {
 
   const args = parse(injects.args, {
     string: ["format"],
-    boolean: ["dry-run", "help"],
-    default: { format: "jsonc", "dry-run": false, help: false }
+    boolean: ["dry-run", "help", "force"],
+    default: { format: "jsonc", "dry-run": false, help: false, force: false }
   })
 
   if (args.help) {
@@ -50,7 +50,8 @@ export async function makeDenoConfigCli(injects: MakeDenoConfigCliInjections = {
     },{
       logFn: injects.logFn,
       writeFn: Deno.writeTextFile,
-      promptFn: promptUser
+      promptFn: promptUser,
+      fileExistsFn: fileExists
     })
     injects.logFn(`%c✅ ${output} generated.`, 'color:limegreen')
     return injects.exitFn(0)
