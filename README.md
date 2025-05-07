@@ -1,17 +1,20 @@
-# deno-init-config
+# jaredhall/init-config
 
-Scaffolds deno.json file for new Demo modules using interactive prompts
+[![jsr](https://img.shields.io/badge/jsr--%40jaredhall%2Finit-config-blue?logo=deno)](https://jsr.io/@jaredhall/init-config)
+[![GitHub](https://img.shields.io/badge/GitHub-JaredCHall/deno-init-config-blue?logo=github)](https://github.com/JaredCHall/deno-init-config)
 
-[![CI](https://example.com/ci.svg)](https://ci.example.com)
+Scaffolds deno.jsonc files for new Deno modules using prompts or config
 
-# Usage
+## Usage
 
 ```bash
-deno run jsr:@your/module
+deno run jsr:@jaredhall/init-config
 ```
 
-# Advanced Usage
+## Advanced Usage
 
-```bash
-deno run jsr:@your/module --with-adv-option
+```typescript
+import { YourModule } from "jsr:@jaredhall/init-config";
+
+new YourModule.engage();
 ```
