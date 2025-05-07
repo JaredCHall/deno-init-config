@@ -1,11 +1,14 @@
 export type { DenoConfig } from "./src/types.ts";
 export { validateJsrPath, validateGitHubPath } from "./src/helpers.ts";
-export { generateDenoConfigObject, generateDenoConfig } from "./src/core.ts";
-import { generateDenoConfig } from "./src/core.ts";
-import { parse } from "@std/flags";
+export { generateDenoConfigObject, makeDenoConfigCommand } from "./src/core.ts";
 
 // CLI entrypoint
 if (import.meta.main) {
+  const [{ makeDenoConfigCommand }, { parse }] = await Promise.all([
+    import("./src/core.ts"),
+    import("@std/flags")
+  ])
+
   const args = parse(Deno.args, {
     string: ["format"],
     boolean: ["dry-run"],
@@ -13,16 +16,12 @@ if (import.meta.main) {
   });
 
   try{
-    const output = await generateDenoConfig({
+    const output = await makeDenoConfigCommand({
       format: args.format,
       dryRun: args["dry-run"],
     })
 
-    if(args["dry-run"]){
-      console.log(output)
-    }else{
-      console.log(`%c✅ ${output} generated.`, 'color:limegreen');
-    }
+    console.log(`%c✅ ${output} generated.`, 'color:limegreen');
     Deno.exit(0);
 
   }catch(err){

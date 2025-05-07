@@ -11,18 +11,24 @@ export function validateGitHubPath(githubPath: string): void {
   }
 }
 
+/** Type of the global prompt function */
+export type PromptFn = (message: string) => string | null
+export type LogFn = (message?: unknown, ...args: unknown[]) => void
+
 /** Prompt the user for input until it passes validation */
 export function promptUser(
     message: string,
-    validate?: (input: string) => void
+    validate?: (input: string) => void,
+    promptFn: PromptFn = prompt,
+    logFn: LogFn = console.error
 ): string {
-  while(true){
-    const input = (prompt(message) ?? '').trim()
+  while (true) {
+    const input = (promptFn(message) ?? '').trim()
     try {
       if (validate) validate(input)
       return input
     } catch (err) {
-      console.error(`%c❌ ${err instanceof Error ? err.message : String(err)}`, 'color:indianred')
+      logFn(`%c❌ ${err instanceof Error ? err.message : String(err)}`, 'color:indianred')
     }
   }
 }

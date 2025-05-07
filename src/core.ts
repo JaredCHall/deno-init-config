@@ -3,9 +3,10 @@ import type {DenoConfig} from "./types.ts";
 
 export type PromptFn = typeof promptUser
 export type WriteFn = typeof Deno.writeTextFile
+export type LogFn = typeof console.log
 
 /** Options for the generateDenoConfig command */
-export interface GenerateDenoConfigOptions {
+export interface makeDenoConfigCommandOptions {
   /** The format of the output file: json or jsonc */
   format: string
   /** return the output instead of writing to file */
@@ -13,41 +14,47 @@ export interface GenerateDenoConfigOptions {
 }
 
 /** Injections for the generateDenoConfig command (for testing) */
-export interface GenerateDenoConfigInjections {
+export interface MakeDenoConfigCommandInjections {
   promptFn: PromptFn
   writeFn: WriteFn
+  logFn: LogFn
 }
 
 /**
  * Generate a deno.json config file
+ * - prompts the user for input
+ * - prints to console if dryRun is true
+ * - writes to file if dryRun is false
  *
- * @returns the path to the generated file or the output if dryRun is true
+ * @returns the path to the generated file
  */
-export async function generateDenoConfig(
-    options: GenerateDenoConfigOptions = {format: 'jsonc'},
-    injects: GenerateDenoConfigInjections = {
+export async function makeDenoConfigCommand(
+    options: makeDenoConfigCommandOptions = {format: 'jsonc'},
+    injects: MakeDenoConfigCommandInjections = {
       promptFn: promptUser,
-      writeFn: Deno.writeTextFile
+      writeFn: Deno.writeTextFile,
+      logFn: console.log,
     }
 ): Promise<string>
 {
   if (options.format !== "json" && options.format !== "jsonc") {
     throw new Error(`Invalid format: "${options.format}". Use "json" or "jsonc".`);
   }
-  if(!injects.promptFn) throw new Error('promptFn is required')
-  if(!injects.writeFn) throw new Error('writeFn is required')
 
   const jsrPath = injects.promptFn('Enter the future JSR path of the project: ', validateJsrPath)
   const githubPath = injects.promptFn('Enter the GitHub path of the project: ', validateGitHubPath)
   const description = injects.promptFn('Enter a short description of the project: ')
   const config = generateDenoConfigObject(jsrPath, githubPath, description)
   const configText = JSON.stringify(config, null, 2)
+  const fileName = `./deno.${options.format}`
+
 
   if(options.dryRun){
-    return configText
+    injects.logFn(configText)
+    return fileName
   }
 
-  const fileName = `./deno.${options.format}`
+  // write the file
   await injects.writeFn(fileName, JSON.stringify(config, null, 2))
 
   return fileName
